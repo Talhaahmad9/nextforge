@@ -1,0 +1,7 @@
+{
+  "add": {
+    "@supabase/supabase-js": "^2.105.1"
+  },
+  "addDev": {},
+  "remove": ["mongoose", "mongoose-sanitize"]
+}
