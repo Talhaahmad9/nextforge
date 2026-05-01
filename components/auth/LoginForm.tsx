@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
@@ -14,25 +14,33 @@ export function LoginForm() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    setFieldErrors({});
 
     startTransition(async () => {
       const result = await loginAction(formData);
       if (result.success) {
         router.push("/dashboard");
+      } else if (result.fieldErrors) {
+        // Validation errors — show inline under each field
+        setFieldErrors(result.fieldErrors);
       } else {
+        // Server-level error (wrong credentials, DB down, etc.) — show as toast
         toast("error", result.error);
       }
     });
   }
 
+  function fieldError(name: string) {
+    return fieldErrors[name]?.[0];
+  }
+
   return (
     <form
-      ref={formRef}
       onSubmit={handleSubmit}
       noValidate
       className="animate-fade-in flex flex-col gap-5 w-full"
@@ -45,6 +53,7 @@ export function LoginForm() {
         placeholder="you@example.com"
         required
         disabled={isPending}
+        error={fieldError("email")}
       />
 
       <Input
@@ -55,6 +64,7 @@ export function LoginForm() {
         placeholder="••••••••"
         required
         disabled={isPending}
+        error={fieldError("password")}
         rightIcon={
           <button
             type="button"
