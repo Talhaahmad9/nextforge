@@ -1,6 +1,7 @@
 Spin up a **secure, full-auth Next.js backend in under 60 seconds** — with your choice of database.
 
-No boilerplate. No repeated setup. No security gaps.
+No boilerplate. No repeated setup. No security gaps.  
+No leftover scaffold code. No vendor lock-in.
 
 ## ⚡ What you get
 
@@ -15,6 +16,7 @@ All with one command:
 ```bash
 node setup.mjs
 ```
+→ Choose your stack. Get a clean project. Start building.
 
 ## Who this is for
 
@@ -28,7 +30,7 @@ node setup.mjs
 
 Most starters give you structure.
 
-This gives you a **production-ready system**:
+This gives you a **production-ready backend system**:
 
 - OTPs are hashed (never stored in plaintext)
 - Timing-safe comparisons prevent side-channel attacks
@@ -36,7 +38,7 @@ This gives you a **production-ready system**:
 - Parameterized queries for PostgreSQL
 - Rate limits separated for auth and OTP endpoints
 
-Security is not optional — it's built-in.
+Security is not optional — it’s the default.
 
 ## What you don’t have to build again
 
@@ -127,9 +129,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-
 ➡️ Leaves you with a clean, standard Next.js project (no scaffold leftovers)
-
 ---
 
 ## Project Structure
