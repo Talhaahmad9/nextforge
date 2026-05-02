@@ -1,7 +1,53 @@
-# Reuseable Scaffold
+Spin up a **secure, full-auth Next.js backend in under 60 seconds** — with your choice of database.
 
-A production-ready, security-hardened **Next.js 16** starter with full authentication, database flexibility, and modern tooling. Clone it, run one command to choose your database, and start building.
+No boilerplate. No repeated setup. No security gaps.
 
+## ⚡ What you get
+
+- 🔐 Complete authentication (email + Google OAuth)
+- 🛡️ Security-first setup (XSS, SQLi/NoSQLi protection, rate limiting)
+- 🗄️ Choose your database: MongoDB or PostgreSQL (Supabase)
+- 📧 Email verification + password reset flows
+- 🧱 Clean, production-ready architecture
+
+All with one command:
+
+```bash
+node setup.mjs
+```
+
+## Who this is for
+
+- Developers tired of rebuilding auth and security every project
+- Indie hackers shipping SaaS quickly
+- Agencies handling multiple client backends
+- Anyone who wants a **secure default starting point**
+
+
+## Why this scaffold?
+
+Most starters give you structure.
+
+This gives you a **production-ready system**:
+
+- OTPs are hashed (never stored in plaintext)
+- Timing-safe comparisons prevent side-channel attacks
+- MongoDB inputs sanitized against operator injection
+- Parameterized queries for PostgreSQL
+- Rate limits separated for auth and OTP endpoints
+
+Security is not optional — it's built-in.
+
+## What you don’t have to build again
+
+- Login / registration flows  
+- Email verification system  
+- Password reset logic  
+- Rate limiting  
+- Input validation  
+- Basic security protections  
+
+It’s already done.
 ---
 
 ## Features
@@ -80,6 +126,9 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+
+➡️ Leaves you with a clean, standard Next.js project (no scaffold leftovers)
 
 ---
 
