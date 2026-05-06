@@ -1,3 +1,17 @@
+<div align="center">
+  <img src="public/nextforge_logo.svg" alt="NextForge Scaffold" height="100" />
+  <br /><br />
+  <p><strong>Production-Ready, Security-Hardened Next.js 16 Starter</strong></p>
+  <p>Full authentication, database flexibility, and modern tooling. Clone it, run one command to choose your database, and start building.</p>
+  <br />
+
+  ![Next.js](https://img.shields.io/badge/Next.js-16-2563eb?style=for-the-badge&logo=nextdotjs&logoColor=ffffff)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-2563eb?style=for-the-badge&logo=typescript&logoColor=ffffff)
+  ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-2563eb?style=for-the-badge&logo=tailwindcss&logoColor=ffffff)
+  ![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-2563eb?style=for-the-badge&logo=mongodb&logoColor=ffffff)
+  ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-2563eb?style=for-the-badge&logo=supabase&logoColor=ffffff)
+</div>
+
 Spin up a **secure, full-auth Next.js backend in under 60 seconds** — with your choice of database.
 
 No boilerplate. No repeated setup. No security gaps.  
