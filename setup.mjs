@@ -62,10 +62,11 @@ async function main() {
   console.log("└──────────────────────────────────────────┘");
   console.log();
 
-  const variants = ["mongodb", "supabase"];
+  const variants = ["mongodb", "supabase", "firebase"];
   const labels = {
     mongodb: "MongoDB (Mongoose)",
     supabase: "Supabase (PostgreSQL)",
+    firebase: "Firebase (Firestore)",
   };
 
   console.log("Which database backend do you want to use?\n");
@@ -74,12 +75,12 @@ async function main() {
 
   let choice;
   while (!choice) {
-    const answer = await ask("Enter 1 or 2: ");
+    const answer = await ask("Enter 1, 2, or 3: ");
     const index = parseInt(answer, 10) - 1;
     if (index >= 0 && index < variants.length) {
       choice = variants[index];
     } else {
-      console.log("  Invalid choice. Please enter 1 or 2.");
+      console.log("  Invalid choice. Please enter 1, 2, or 3.");
     }
   }
 
@@ -94,7 +95,6 @@ async function main() {
 
   // ── Step 1: Remove files from the OTHER variant that may be in root ────────
 
-  const otherVariant = choice === "mongodb" ? "supabase" : "mongodb";
   const filesToClean = {
     mongodb: [
       "lib/db/mongo.ts",
@@ -104,13 +104,19 @@ async function main() {
     supabase: [
       "lib/db/supabase.ts",
     ],
+    firebase: [
+      "lib/db/firebase.ts",
+    ],
   };
 
-  // Remove the other variant's DB-specific files from root
-  for (const f of filesToClean[otherVariant] || []) {
-    const target = path.join(ROOT, f);
-    if (fs.existsSync(target)) {
-      fs.unlinkSync(target);
+  // Remove the OTHER variants DB-specific files from root
+  for (const v of variants) {
+    if (v === choice) continue;
+    for (const f of filesToClean[v] || []) {
+      const target = path.join(ROOT, f);
+      if (fs.existsSync(target)) {
+        fs.unlinkSync(target);
+      }
     }
   }
 

@@ -10,6 +10,7 @@
   ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-2563eb?style=for-the-badge&logo=tailwindcss&logoColor=ffffff)
   ![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-2563eb?style=for-the-badge&logo=mongodb&logoColor=ffffff)
   ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-2563eb?style=for-the-badge&logo=supabase&logoColor=ffffff)
+  ![Firebase](https://img.shields.io/badge/Firebase-Firestore-2563eb?style=for-the-badge&logo=firebase&logoColor=ffffff)
 </div>
 
 Spin up a **secure, full-auth Next.js backend in under 60 seconds** — with your choice of database.
@@ -21,7 +22,7 @@ No leftover scaffold code. No vendor lock-in.
 
 - 🔐 Complete authentication (email + Google OAuth)
 - 🛡️ Security-first setup (XSS, SQLi/NoSQLi protection, rate limiting)
-- 🗄️ Choose your database: MongoDB or PostgreSQL (Supabase)
+- 🗄️ Choose your database: MongoDB, PostgreSQL (Supabase), or Firebase (Firestore)
 - 📧 Email verification + password reset flows
 - 🧱 Clean, production-ready architecture
 
@@ -70,7 +71,7 @@ It’s already done.
 
 - ⚡ **Next.js 16** with App Router and Turbopack
 - 🔐 **NextAuth v5** — Credentials + Google OAuth, JWT sessions
-- 🗄️ **Database choice** — MongoDB (Mongoose) or Supabase (PostgreSQL) via interactive setup
+- 🗄️ **Database choice** — MongoDB (Mongoose), Supabase (PostgreSQL), or Firebase (Firestore) via interactive setup
 - 📧 **Full auth flow** — Register, login, email verification, forgot/reset password
 - 🛡️ **Security-hardened** — bcrypt (cost 12), CSPRNG OTPs, timing-safe comparison, CSP headers, HSTS
 - 🚫 **Rate limiting** — Upstash Redis, separate limits for auth and OTP endpoints
@@ -107,8 +108,9 @@ node setup.mjs
 Which database backend do you want to use?
   1) MongoDB (Mongoose)
   2) Supabase (PostgreSQL)
+  3) Firebase (Firestore)
 
-Enter 1 or 2: _
+Enter 1, 2, or 3: _
 ```
 
 The script will:
@@ -151,7 +153,8 @@ Open [http://localhost:3000](http://localhost:3000).
 ```
 ├── _variants/                  # Database variant files (deleted after setup)
 │   ├── mongodb/                # Mongoose-based auth + OTP logic
-│   └── supabase/               # Supabase-based auth + OTP logic + SQL schema
+│   ├── supabase/               # Supabase-based auth + OTP logic + SQL schema
+│   └── firebase/               # Firebase-based auth + OTP logic
 │
 ├── actions/
 │   ├── auth.ts                 # loginAction, registerAction, verifyEmailAction, logoutAction
@@ -289,6 +292,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...   # ⚠️ server-only — never expose to the browser
 ```
 
+### Firebase variant
+
+```bash
+FIREBASE_PROJECT_ID=my-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@my-project-id.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
 ---
 
 ## Database Variants
@@ -309,6 +320,14 @@ The scaffold ships with two production-ready database backends. The auth logic, 
 - `.gt('expires_at', ...)` for expiry checking — equivalent to MongoDB's `$gt`
 - Optional pg_cron job for periodic OTP cleanup (see `schema.sql` for instructions)
 - `bcrypt.compare` in server actions — passwords are never handled by Supabase Auth
+
+### Firebase (Firestore)
+
+- Two collections: `users` and `otps`
+- Server-side only integration using `firebase-admin`
+- NextAuth Credentials integration checking against Firestore documents
+- Expiry checking done in-memory on the server after querying
+- `bcrypt.compare` in server actions — passwords are never handled by native Firebase Auth
 
 ---
 
@@ -404,7 +423,7 @@ if (session?.user.role !== "admin") {
 |---|---|
 | Framework | [Next.js 16](https://nextjs.org) |
 | Auth | [NextAuth v5](https://authjs.dev) |
-| Database (pick one) | [MongoDB Atlas](https://www.mongodb.com/atlas) + [Mongoose](https://mongoosejs.com) · [Supabase](https://supabase.com) |
+| Database (pick one) | [MongoDB Atlas](https://www.mongodb.com/atlas) + [Mongoose](https://mongoosejs.com) · [Supabase](https://supabase.com) · [Firebase](https://firebase.google.com) |
 | Email | [Resend](https://resend.com) |
 | Rate Limiting | [Upstash Redis](https://upstash.com) |
 | Validation | [Zod](https://zod.dev) |
