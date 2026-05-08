@@ -58,7 +58,7 @@ function removeRecursive(target) {
 async function main() {
   console.log();
   console.log("┌──────────────────────────────────────────┐");
-  console.log("│    Reusable Scaffold — Database Setup     │");
+  console.log("│        NextForge — Database Setup        │");
   console.log("└──────────────────────────────────────────┘");
   console.log();
 

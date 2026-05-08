@@ -90,7 +90,7 @@ It’s already done.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/Talhaahmad9/reuseable-scaffold.git my-project
+git clone https://github.com/Talhaahmad9/nextforge.git my-project
 cd my-project
 ```
 
@@ -102,7 +102,7 @@ node setup.mjs
 
 ```
 ┌──────────────────────────────────────────┐
-│    Reusable Scaffold — Database Setup    │
+│        NextForge — Database Setup        │
 └──────────────────────────────────────────┘
 
 Which database backend do you want to use?
@@ -335,7 +335,7 @@ The scaffold ships with two production-ready database backends. The auth logic, 
 
 ```bash
 # Clone the scaffold as your new project
-git clone https://github.com/Talhaahmad9/reuseable-scaffold.git my-new-project
+git clone https://github.com/Talhaahmad9/nextforge.git my-new-project
 cd my-new-project
 
 # Pick your database — this is a one-time operation
