@@ -15,6 +15,8 @@
 
 Spin up a **secure, full-auth Next.js backend in under 60 seconds** — with your choice of database.
 
+Complete information and full documentation: https://nextforge.talhaahmad.me
+
 No boilerplate. No repeated setup. No security gaps.  
 No leftover scaffold code. No vendor lock-in.
 
@@ -90,14 +92,13 @@ It’s already done.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/Talhaahmad9/nextforge.git my-project
-cd my-project
+git clone https://github.com/Talhaahmad9/nextforge.git
 ```
 
 ### 2. Choose your database
 
 ```bash
-node setup.mjs
+node nextforge/setup.mjs
 ```
 
 ```
@@ -119,13 +120,19 @@ The script will:
 - Generate a `.env.local.example` with only the env vars you need
 - Delete `_variants/` and `setup.mjs` itself (clean slate)
 
-### 3. Install
+### 3. Enter the project directory
+
+```bash
+cd nextforge
+```
+
+### 4. Install
 
 ```bash
 npm install
 ```
 
-### 4. Configure environment variables
+### 5. Configure environment variables
 
 ```bash
 cp .env.local.example .env.local
@@ -133,11 +140,11 @@ cp .env.local.example .env.local
 
 Fill in `.env.local` — see the [Environment Variables](#environment-variables) section below.
 
-### 5. (Supabase only) Run the database schema
+### 6. (Supabase only) Run the database schema
 
 Open your Supabase project → SQL Editor → paste and run `lib/db/schema.sql`.
 
-### 6. Start the dev server
+### 7. Start the dev server
 
 ```bash
 npm run dev
