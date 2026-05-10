@@ -141,8 +141,7 @@ export async function verifyEmailAction(
   const parsed = parseSchema(verifyEmailSchema, sanitized);
   if (!parsed.success) return parsed;
 
-  const { otp } = parsed.data;
-  const email = sanitized.email;
+  const { email, otp } = parsed.data;
 
   try {
     const db = getFirestore();

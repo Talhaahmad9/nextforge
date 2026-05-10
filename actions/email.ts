@@ -56,7 +56,18 @@ export async function sendPasswordResetOTPAction(
       expiresAt,
     });
 
-    await sendPasswordResetEmail({ to: email, name: user.name, otp });
+    const emailResult = await sendPasswordResetEmail({
+      to: email,
+      name: user.name,
+      otp,
+    });
+
+    if (!emailResult.success) {
+      return {
+        success: false,
+        error: "Unable to send reset code right now. Please try again.",
+      };
+    }
 
     return genericSuccess;
   } catch (err) {
@@ -82,13 +93,7 @@ export async function resetPasswordAction(
   const parsed = parseSchema(resetPasswordSchema, sanitized);
   if (!parsed.success) return parsed;
 
-  const { otp, password } = parsed.data;
-
-  const rawEmail = sanitized.email;
-  if (!rawEmail || typeof rawEmail !== "string") {
-    return { success: false, error: "Email is required." };
-  }
-  const email = rawEmail;
+  const { email, otp, password } = parsed.data;
 
   try {
     await connectMongo();

@@ -1,9 +1,4 @@
 import mongoose, { type Connection } from "mongoose";
-// mongoose-sanitize has no bundled types — use require to avoid TS errors
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const mongooseSanitize = require("mongoose-sanitize") as (
-  schema: mongoose.Schema
-) => void;
 
 // ─── Global cache (survives Next.js hot reload / serverless warm starts) ──────
 
@@ -49,10 +44,6 @@ export async function connectMongo(): Promise<Connection> {
   cached.conn = await cached.promise;
   return cached.conn;
 }
-
-// ─── Global plugin registration ───────────────────────────────────────────────
-// Registers once at module load; applies to every schema going forward.
-mongoose.plugin(mongooseSanitize);
 
 // ─── Export mongoose instance for model definitions ───────────────────────────
 export default mongoose;

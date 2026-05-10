@@ -59,6 +59,7 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
+    email: emailField,
     otp: otpField,
     password: passwordField,
     confirmPassword: z.string(),
@@ -69,6 +70,7 @@ export const resetPasswordSchema = z
   });
 
 export const verifyEmailSchema = z.object({
+  email: emailField,
   otp: otpField,
 });
 

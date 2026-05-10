@@ -53,8 +53,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Redirect unauthenticated users away from protected pages
-  if (!session && PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
+  // Redirect unauthenticated users and unverified users away from protected pages
+  if (
+    PROTECTED_PREFIXES.some((p) => pathname.startsWith(p)) &&
+    (!session || !session.user?.emailVerified)
+  ) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);

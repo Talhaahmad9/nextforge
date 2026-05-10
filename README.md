@@ -244,11 +244,18 @@ Open [http://localhost:3000](http://localhost:3000).
 | NoSQL injection | `stripMongoOperators` strips `$` / `.` keys from user input (MongoDB) |
 | SQL injection | Supabase JS client uses parameterized queries |
 | XSS | `escapeHTML` applied to all user-supplied string inputs |
-| Rate limiting | Upstash Redis sliding window — 5 req/min auth, 3 req/min OTP |
+| Rate limiting | Upstash Redis sliding window — 5 requests/15 min auth, 3 requests/10 min OTP |
 | Session | JWT strategy, `AUTH_SECRET` required in all environments |
 | Route protection | `proxy.ts` middleware — unauthenticated → `/login`, authenticated + verified → allowed |
 | Security headers | CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, HSTS (production) |
 | Email enumeration | Password reset and OTP resend always return the same generic response |
+
+### Recent Hardening Updates
+
+- Reset-password and email-verification flows now validate `email` directly in Zod schemas.
+- Protected route guard now blocks both unauthenticated users and authenticated-but-unverified users.
+- Password reset OTP send now surfaces provider send failures instead of silently returning success.
+- Removed `mongoose-sanitize` plugin usage in favor of explicit input sanitization utilities.
 
 ---
 

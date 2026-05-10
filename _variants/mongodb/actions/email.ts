@@ -82,13 +82,7 @@ export async function resetPasswordAction(
   const parsed = parseSchema(resetPasswordSchema, sanitized);
   if (!parsed.success) return parsed;
 
-  const { otp, password } = parsed.data;
-
-  const rawEmail = sanitized.email;
-  if (!rawEmail || typeof rawEmail !== "string") {
-    return { success: false, error: "Email is required." };
-  }
-  const email = rawEmail;
+  const { email, otp, password } = parsed.data;
 
   try {
     await connectMongo();

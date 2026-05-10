@@ -115,12 +115,7 @@ export async function verifyEmailAction(formData: FormData): Promise<ActionState
   const parsed = parseSchema(verifyEmailSchema, sanitized);
   if (!parsed.success) return parsed;
 
-  const { otp } = parsed.data;
-  const { email } = sanitized;
-
-  if (!email || typeof email !== "string") {
-    return { success: false, error: "Email is required." };
-  }
+  const { email, otp } = parsed.data;
 
   try {
     await connectMongo();
