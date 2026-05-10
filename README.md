@@ -75,6 +75,8 @@ It’s already done.
 - 🔐 **NextAuth v5** — Credentials + Google OAuth, JWT sessions
 - 🗄️ **Database choice** — MongoDB (Mongoose), Supabase (PostgreSQL), or Firebase (Firestore) via interactive setup
 - 📧 **Full auth flow** — Register, login, email verification, forgot/reset password
+- 🌐 **Boilerplate landing page** — Useful `/` homepage with quick auth/dashboard CTAs
+- 🔑 **OAuth UI included** — Google sign-in buttons on both login and register forms
 - 🛡️ **Security-hardened** — bcrypt (cost 12), CSPRNG OTPs, timing-safe comparison, CSP headers, HSTS
 - 🚫 **Rate limiting** — Upstash Redis, separate limits for auth and OTP endpoints
 - 📨 **Transactional email** — Resend integration with HTML templates
@@ -221,9 +223,11 @@ Open [http://localhost:3000](http://localhost:3000).
 1. User submits email + password
 2. NextAuth Credentials provider: look up user → `bcrypt.compare` → return user object → JWT minted
 3. JWT stored as HTTP-only cookie; session available via `auth()` or `useSession()`
+4. Optional Google OAuth flow is available directly from login/register UI buttons
 
 ### Google OAuth
 - Handled by NextAuth's Google provider
+- UI button is included on both `/login` and `/register`
 - No additional setup beyond `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`
 
 ### Forgot / Reset Password

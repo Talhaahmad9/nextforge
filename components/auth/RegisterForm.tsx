@@ -3,7 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { Eye, EyeOff } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useToast } from "@/hooks/useToast";
@@ -39,6 +41,12 @@ export function RegisterForm() {
 
   function fieldError(name: string) {
     return fieldErrors[name]?.[0];
+  }
+
+  function handleGoogleSignIn() {
+    startTransition(async () => {
+      await signIn("google", { callbackUrl: "/dashboard" });
+    });
   }
 
   return (
@@ -84,7 +92,7 @@ export function RegisterForm() {
             tabIndex={-1}
             aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword((v) => !v)}
-            className="text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -106,7 +114,7 @@ export function RegisterForm() {
             tabIndex={-1}
             aria-label={showConfirm ? "Hide password" : "Show password"}
             onClick={() => setShowConfirm((v) => !v)}
-            className="text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -117,9 +125,28 @@ export function RegisterForm() {
         Create account
       </Button>
 
-      <p className="text-center text-sm text-[var(--color-muted-foreground)]">
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-(--color-border)" />
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">
+          Or
+        </span>
+        <span className="h-px flex-1 bg-(--color-border)" />
+      </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        fullWidth
+        onClick={handleGoogleSignIn}
+        disabled={isPending}
+      >
+        <FcGoogle size={18} aria-hidden="true" />
+        Continue with Google
+      </Button>
+
+      <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="text-[var(--color-primary)] hover:underline">
+        <Link href="/login" className="text-(--color-primary) hover:underline">
           Sign in
         </Link>
       </p>
