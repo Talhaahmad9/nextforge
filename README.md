@@ -190,7 +190,7 @@ Open [http://localhost:3000](http://localhost:3000).
 │   ├── db/
 │   │   ├── mongo.ts            # Mongoose connection (MongoDB variant)
 │   │   ├── models/             # User + OTP Mongoose models
-│   │   └── supabase.ts         # Supabase client — anon + service role (Supabase variant)
+│   │   └── supabase.ts         # Supabase client — publishable + secret key (Supabase variant)
 │   ├── email.ts                # Resend email templates + sender
 │   ├── ratelimit.ts            # Upstash Redis rate limiters
 │   ├── sanitize.ts             # XSS escaping + (MongoDB) NoSQL injection stripping
@@ -309,6 +309,18 @@ FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@my-project-id.iam.gserviceaccount.co
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
+### Database setup notes (short)
+
+- **MongoDB**: use a valid Atlas URI, and ensure your network/IP access allows your machine.
+- **Supabase**: run `lib/db/schema.sql` before testing auth flows; use new keys only (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`).
+- **Firebase**: use **Admin service account** values (not web SDK config), include full PEM wrappers in `FIREBASE_PRIVATE_KEY`, create Firestore `(default)`, and create required composite index when prompted.
+
+Detailed guides:
+
+- MongoDB: https://nextforge.talhahmad.me/documentation/database/mongodb
+- Supabase: https://nextforge.talhahmad.me/documentation/database/supabase
+- Firebase: https://nextforge.talhahmad.me/documentation/database/firebase
+
 ---
 
 ## Database Variants
@@ -319,13 +331,12 @@ The scaffold ships with two production-ready database backends. The auth logic, 
 
 - Mongoose models with pre-save bcrypt hook (`UserModel`, `OTPModel`)
 - TTL index on `OTPModel.expiresAt` — MongoDB auto-deletes expired OTPs
-- Global `mongoose-sanitize` plugin as an additional defence layer
 - `stripMongoOperators` strips `$` and `.` keys from all user input before queries
 
 ### Supabase (PostgreSQL)
 
 - Two tables: `users` and `otps` (schema at `lib/db/schema.sql`)
-- Supabase JS client with anon key (browser-safe) and service role key (server-only)
+- Supabase JS client with publishable key (browser-safe) and secret key (server-only)
 - `.gt('expires_at', ...)` for expiry checking — equivalent to MongoDB's `$gt`
 - Optional pg_cron job for periodic OTP cleanup (see `schema.sql` for instructions)
 - `bcrypt.compare` in server actions — passwords are never handled by Supabase Auth
