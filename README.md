@@ -76,7 +76,9 @@ It’s already done.
 - 🗄️ **Database choice** — MongoDB (Mongoose), Supabase (PostgreSQL), or Firebase (Firestore) via interactive setup
 - 📧 **Full auth flow** — Register, login, email verification, forgot/reset password
 - 🌐 **Boilerplate landing page** — Useful `/` homepage with quick auth/dashboard CTAs
+- 🚪 **Dashboard logout control** — Starter dashboard includes a working logout button wired to the active auth backend
 - 🔑 **OAuth UI included** — Google sign-in buttons on both login and register forms
+- 🔄 **OAuth user sync included** — Google sign-in now creates or updates the matching backend user in MongoDB, Supabase, and Firebase
 - 🛡️ **Security-hardened** — bcrypt (cost 12), CSPRNG OTPs, timing-safe comparison, CSP headers, HSTS
 - 🚫 **Rate limiting** — Upstash Redis, separate limits for auth and OTP endpoints
 - 📨 **Transactional email** — Resend integration with HTML templates
@@ -224,10 +226,13 @@ Open [http://localhost:3000](http://localhost:3000).
 2. NextAuth Credentials provider: look up user → `bcrypt.compare` → return user object → JWT minted
 3. JWT stored as HTTP-only cookie; session available via `auth()` or `useSession()`
 4. Optional Google OAuth flow is available directly from login/register UI buttons
+5. Dashboard logout button posts to the shared server action and redirects back to `/login`
 
 ### Google OAuth
 - Handled by NextAuth's Google provider
 - UI button is included on both `/login` and `/register`
+- First Google sign-in creates or updates the matching backend user record automatically
+- JWT/session state is rehydrated from the database so `id`, `role`, and verified status match the canonical user record
 - No additional setup beyond `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`
 
 ### Forgot / Reset Password
@@ -318,6 +323,7 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY----
 - **MongoDB**: use a valid Atlas URI, and ensure your network/IP access allows your machine.
 - **Supabase**: run `lib/db/schema.sql` before testing auth flows; use new keys only (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`).
 - **Firebase**: use **Admin service account** values (not web SDK config), include full PEM wrappers in `FIREBASE_PRIVATE_KEY`, create Firestore `(default)`, and create required composite index when prompted.
+- **Google OAuth**: after Google is configured, first sign-in will create or update the matching backend user record for the selected database variant.
 
 Detailed guides:
 
@@ -329,13 +335,14 @@ Detailed guides:
 
 ## Database Variants
 
-The scaffold ships with two production-ready database backends. The auth logic, OTP flow, and security model are identical — only the data access layer differs.
+The scaffold ships with three production-ready database backends. The auth logic, OTP flow, and security model are identical — only the data access layer differs.
 
 ### MongoDB (Mongoose)
 
 - Mongoose models with pre-save bcrypt hook (`UserModel`, `OTPModel`)
 - TTL index on `OTPModel.expiresAt` — MongoDB auto-deletes expired OTPs
 - `stripMongoOperators` strips `$` and `.` keys from all user input before queries
+- Google OAuth upserts the user into MongoDB and marks the account verified for protected-route compatibility
 
 ### Supabase (PostgreSQL)
 
@@ -344,6 +351,7 @@ The scaffold ships with two production-ready database backends. The auth logic, 
 - `.gt('expires_at', ...)` for expiry checking — equivalent to MongoDB's `$gt`
 - Optional pg_cron job for periodic OTP cleanup (see `schema.sql` for instructions)
 - `bcrypt.compare` in server actions — passwords are never handled by Supabase Auth
+- Google OAuth upserts the user row by email; `password` remains nullable for OAuth-only users
 
 ### Firebase (Firestore)
 
@@ -352,6 +360,7 @@ The scaffold ships with two production-ready database backends. The auth logic, 
 - NextAuth Credentials integration checking against Firestore documents
 - Expiry checking done in-memory on the server after querying
 - `bcrypt.compare` in server actions — passwords are never handled by native Firebase Auth
+- Google OAuth creates or updates the matching `users` document and reuses the same session shape as credentials login
 
 ---
 
@@ -424,7 +433,7 @@ In `lib/ratelimit.ts`:
 
 ```typescript
 export const authRatelimit = new Ratelimit({
-  limiter: Ratelimit.slidingWindow(5, "1 m"), // 5 requests per minute
+  limiter: Ratelimit.slidingWindow(5, "15 m"), // 5 requests per 15 minutes
 });
 ```
 

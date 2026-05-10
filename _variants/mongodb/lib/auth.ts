@@ -1,9 +1,80 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { randomBytes } from "node:crypto";
 import { connectMongo } from "@/lib/db/mongo";
 import { UserModel } from "@/lib/db/models/user.model";
 import { loginSchema } from "@/lib/validate";
+
+type AuthUserShape = {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  role: "user" | "admin";
+  emailVerified: boolean;
+};
+
+function mapUser(user: {
+  _id: { toString(): string };
+  name: string;
+  email: string;
+  image?: string;
+  role: "user" | "admin";
+  emailVerified: boolean;
+}): AuthUserShape {
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    image: user.image ?? null,
+    role: user.role,
+    emailVerified: user.emailVerified,
+  };
+}
+
+async function getCanonicalUserByEmail(email: string): Promise<AuthUserShape | null> {
+  await connectMongo();
+
+  const user = await UserModel.findOne({ email: email.toLowerCase() });
+  if (!user) return null;
+
+  return mapUser(user);
+}
+
+async function upsertGoogleUser(params: {
+  email: string;
+  name?: string | null;
+  image?: string | null;
+}): Promise<AuthUserShape | null> {
+  const email = params.email.toLowerCase();
+  const name = params.name?.trim() || email.split("@")[0] || "User";
+
+  await connectMongo();
+
+  const user = await UserModel.findOneAndUpdate(
+    { email },
+    {
+      $set: {
+        name,
+        image: params.image ?? undefined,
+        emailVerified: true,
+      },
+      $setOnInsert: {
+        password: randomBytes(32).toString("hex"),
+        role: "user",
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+      runValidators: true,
+      setDefaultsOnInsert: true,
+    }
+  );
+
+  return user ? mapUser(user) : null;
+}
 
 // Validate at runtime (dev + prod server) but not during `next build` static collection
 if (
@@ -40,14 +111,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
           const isValid = await user.comparePassword(password);
           if (!isValid) return null;
 
-          return {
-            id: user._id.toString(),
-            name: user.name,
-            email: user.email,
-            image: user.image ?? null,
-            role: user.role,
-            emailVerified: user.emailVerified,
-          };
+          return mapUser(user);
         } catch (err) {
           console.error("[auth] Credentials authorize error:", err);
           return null;
@@ -64,17 +128,51 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
   session: { strategy: "jwt" },
 
   callbacks: {
+    async signIn({ account, user }) {
+      if (account?.provider !== "google") return true;
+
+      if (!user.email) {
+        console.error("[auth] Google sign-in rejected: missing email");
+        return false;
+      }
+
+      try {
+        const canonicalUser = await upsertGoogleUser({
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        });
+
+        return Boolean(canonicalUser);
+      } catch (err) {
+        console.error("[auth] Google sign-in upsert error:", err);
+        return false;
+      }
+    },
+
     async jwt({ token, user }) {
       if (user) {
-        // First sign-in: persist custom fields into the token
-        const u = user as typeof user & {
-          role: "user" | "admin";
-          emailVerified: boolean;
-        };
-        token.id = u.id as string;
-        token.role = u.role;
-        token.emailVerified = u.emailVerified;
+        token.name = user.name;
+        token.email = user.email;
+        token.picture = user.image;
       }
+
+      if (token.email) {
+        try {
+          const canonicalUser = await getCanonicalUserByEmail(token.email);
+          if (canonicalUser) {
+            token.id = canonicalUser.id;
+            token.name = canonicalUser.name;
+            token.email = canonicalUser.email;
+            token.picture = canonicalUser.image;
+            token.role = canonicalUser.role;
+            token.emailVerified = canonicalUser.emailVerified;
+          }
+        } catch (err) {
+          console.error("[auth] JWT hydration error:", err);
+        }
+      }
+
       return token;
     },
 
@@ -82,9 +180,9 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       return {
         ...session,
         user: {
-          name: session.user?.name ?? null,
-          email: session.user?.email ?? null,
-          image: session.user?.image ?? null,
+          name: token.name ?? session.user?.name ?? null,
+          email: token.email ?? session.user?.email ?? null,
+          image: token.picture ?? session.user?.image ?? null,
           id: token.id as string,
           role: token.role as "user" | "admin",
           emailVerified: token.emailVerified as boolean,
