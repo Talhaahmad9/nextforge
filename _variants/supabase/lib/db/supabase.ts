@@ -5,61 +5,61 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 let browserClient: SupabaseClient | null = null;
 let serverClient: SupabaseClient | null = null;
 
-// ─── getSupabaseClient (browser-safe, anon key) ───────────────────────────────
+// ─── getSupabaseClient (browser-safe, publishable key) ───────────────────────
 
 /**
- * Returns a cached Supabase client using the public anon key.
+ * Returns a cached Supabase client using the public publishable key.
  * Safe to use in both client components and server code.
  */
 export function getSupabaseClient(): SupabaseClient {
   if (browserClient) return browserClient;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!url) {
     throw new Error(
       "[supabase] NEXT_PUBLIC_SUPABASE_URL environment variable is not set."
     );
   }
-  if (!anonKey) {
+  if (!publishableKey) {
     throw new Error(
-      "[supabase] NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable is not set."
+      "[supabase] NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable is not set."
     );
   }
 
-  browserClient = createClient(url, anonKey);
+  browserClient = createClient(url, publishableKey);
   return browserClient;
 }
 
-// ─── getSupabaseServerClient (service role — server only) ────────────────────
+// ─── getSupabaseServerClient (secret key — server only) ──────────────────────
 
 /**
- * Returns a cached Supabase client using the service role key.
+ * Returns a cached Supabase client using the secret key.
  * Bypasses Row Level Security — use only in trusted server-side code.
  *
  * ⚠️  NEVER import this function in client components.
- *     The service role key must NEVER be exposed to the browser.
+ *     The secret key must NEVER be exposed to the browser.
  */
 export function getSupabaseServerClient(): SupabaseClient {
   if (serverClient) return serverClient;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const secretKey = process.env.SUPABASE_SECRET_KEY;
 
   if (!url) {
     throw new Error(
       "[supabase] NEXT_PUBLIC_SUPABASE_URL environment variable is not set."
     );
   }
-  if (!serviceRoleKey) {
+  if (!secretKey) {
     throw new Error(
-      "[supabase] SUPABASE_SERVICE_ROLE_KEY environment variable is not set. " +
+      "[supabase] SUPABASE_SECRET_KEY environment variable is not set. " +
         "This key is for server-side use only."
     );
   }
 
-  serverClient = createClient(url, serviceRoleKey, {
+  serverClient = createClient(url, secretKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
